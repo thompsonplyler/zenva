@@ -22,10 +22,7 @@ gameScene.preload = function () {
     this.load.audio('buildingAudio', 'assets/audio/edificio.mp3')
     this.load.audio('correct', 'assets/audio/correct.mp3')
     this.load.audio('wrong', 'assets/audio/wrong.mp3')
-
 }
-
-
 
 gameScene.init = function () {
     // word database
@@ -71,8 +68,21 @@ gameScene.init = function () {
 }
 
 gameScene.showNextQuestion = function () {
-    let nextWord = Phaser.Math.RND.pick(this.words)
+    gameScene.nextWord = Phaser.Math.RND.pick(this.words)
+    gameScene.nextWord.sound.play();
+    gameScene.wordText.setText(this.nextWord.spanish)
+}
 
+gameScene.processAnswer = function (userResponse) {
+    if (userResponse.key == this.nextWord.key) {
+        this.correctSound.play()
+        console.log("This is the correct answer.")
+
+        return true
+    } else {
+        this.wrongSound.play()
+        return false
+    }
 
 }
 
@@ -80,7 +90,8 @@ gameScene.create = function () {
     let gameW = this.sys.game.config.width
     let gameH = this.sys.game.config.height
 
-    let soundSample = this.sound.add('correct')
+    this.correctSound = this.sound.add('correct')
+    this.wrongSound = this.sound.add('wrong')
 
 
     let bg = this.add.sprite(gameW / 2, gameH / 2, 'background')
@@ -165,6 +176,14 @@ gameScene.create = function () {
             yoyo: true
         })
 
+        item.wrongTween = this.tweens.add({
+            targets: item,
+            angle: 90,
+            duration: 300,
+            paused: true,
+            yoyo: true
+        })
+
         item.alphaTween = this.tweens.add({
             targets: item,
             alpha: 0.7,
@@ -188,20 +207,24 @@ gameScene.create = function () {
 
 
         item.on('pointerdown', function (pointer) {
-            if (item.resizeTween.isPlaying()) {
-                item.resizeTween.pause();
-                console.log("Halting tween!")
-            } else {
-                item.resizeTween.resume();
-                for (let i = 0; i < wordArr.length; i++) {
-                    if (wordArr[i].key === item.texture.key) {
-                        console.log(wordArr[i].spanish)
 
-                        // this lets you hear the sound of the Spanish on a mouse click.
-                        // this.sound.add(`${item.texture.key}Audio`).play()
+            for (let i = 0; i < wordArr.length; i++) {
+                if (wordArr[i].key === item.texture.key) {
+                    console.log(wordArr[i].spanish)
+                    let result = this.processAnswer(this.words[i]);
+                    if (result) {
+                        item.resizeTween.play()
+
+                    } else {
+                        item.wrongTween.play()
                     }
+
+                    // this lets you hear the sound of the Spanish on a mouse click.
+                    // this.sound.add(`${item.texture.key}Audio`).play()
                 }
             }
+
+
             // in order to return the name of the clicked object for enumerated items called 'item'
             // use item.texture.key
             // console.log(`You clicked on the ${item.texture.key}`)
@@ -214,10 +237,14 @@ gameScene.create = function () {
 
         }, this)
 
+        this.wordText = this.add.text(30, 20, ``, {
+            font: '28px Open Sans',
+            fill: '#ffffff'
+        }, this)
+
     }, this)
 
     this.showNextQuestion();
-
 
 }
 
