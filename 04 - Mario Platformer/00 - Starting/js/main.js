@@ -1,53 +1,16 @@
 // create a new scene
 let gameScene = new Phaser.Scene('Game');
 
+
 // some parameters for our scene
 gameScene.init = function() {
   this.playerSpeed = 150;
-  this.jumpSpeed = -450
-
-  this.levelData = {
-    platforms: [
-      {
-         "x": 72,
-         "y": 450,
-         "numTiles": 6,
-         "key": "block"
-      },
-      {
-         "x": 0,
-         "y": 330,
-         "numTiles": 8,
-         "key": "block"
-      },
-      {
-         "x": 72,
-         "y": 210,
-         "numTiles": 8,
-         "key": "block"
-      },
-      {
-         "x": 0,
-         "y": 90,
-         "numTiles": 7,
-         "key": "block"
-      },
-      {
-         "x": 0,
-         "y": 560,
-         "numTiles": 1,
-         "key": "ground"
-      }
-   ]
-  }
-
-
-
+  this.jumpSpeed = -500
 };
 
 // load asset files for our game
 gameScene.preload = function() {
-
+  this.load.json('levelData', 'assets/levelData.json')
   // load images
   this.load.image('ground', 'assets/images/ground.png');
   this.load.image('platform', 'assets/images/platform.png');
@@ -72,8 +35,14 @@ gameScene.preload = function() {
 
   this.input.on('pointerdown', function(pointer){
     console.log(pointer.x,pointer.y)
+
+    
   })
+
+
 };
+
+
 
 // executed once, after assets were loaded
 gameScene.create = function() {
@@ -81,38 +50,28 @@ gameScene.create = function() {
   this.physics.world.bounds.width=360
   this.physics.world.bounds.height=700
   
-  //these next two declarations do the same thing
-  // 1. Declare a sprite with this.add.sprite
-  // let ground = this.add.sprite(180,400, 'ground')
-  // this.physics.add.existing(ground)
-
-  // 2. Declare a sprite as a physics object. 
-  // let ground2 = this.physics.add.sprite(180,200,'ground')
-
-  this.platforms = this.add.group();
-
-  let ground = this.add.sprite(180,604, 'ground')
-  this.physics.add.existing(ground,true)
-
-  // by saying this.physics.add.existing(gameObject,true), you perform a similar function to 
-  // the two properties below-- it won't move, and it won't react to the momentum of other
-  // objects in the physics of the world
-
-  // ground.body.allowGravity = false
-  // ground.body.immovable = true
-
-  // this also turns ground into a StaticBody, which acquires a lot less overhead than the
-  // DynamicBody that comes from a normal physics object in Phaser.
   
-  let platform = this.add.tileSprite(180,500,3*36,1*30,'block')
-  this.physics.add.existing(platform,true)
+  //fire animation
+  // originally, in the tutorial,
+  // the animation didn't play because it's declared after 
+  // the object is placed on the Canvas element
+  this.anims.create({
+    key: 'burning',
+    frames: this.anims.generateFrameNames('fire',{
+      frames: [0,1],
+    }),
+    frameRate: 4,
+    repeat: -1
+  })
 
-  this.platforms.add(ground)
-  this.platforms.add(platform)
+  this.setupLevel();
 
-  this.player = this.add.sprite(20, 557,'player',3)
-  this.physics.add.existing(this.player)
-  this.physics.add.collider(this.player,this.platforms)
+
+  
+  this.player = this.physics.add.existing(this.add.sprite(this.levelData.player.x, this.levelData.player.y,'player',3))
+  
+  this.physics.add.collider([this.player, this.goal], this.platforms);
+  // this.physics.add.collider(this.platforms,this.fires)
 
   // later, this will change to physics groups and static groups for efficiency
   
@@ -130,8 +89,18 @@ gameScene.create = function() {
     repeat: -1
   })
 
+
   //constrain player to world bounds
   this.player.body.setCollideWorldBounds(true)
+
+
+  // shorthand declaration for physics object
+  // this.goal so everything can see it as gameScene.goal
+  // this.physics.add.existing(gameObj) takes a sprite as an argument, 
+  // but we can create the sprite in the argument with this.add.sprite.
+  // which has a normal declaration
+  this.goal = this.physics.add.existing(this.add.sprite(this.levelData.goal.x,this.levelData.goal.y,'goal').setOrigin(0))
+  this.physics.add.collider(this.platforms,this.goal)
 
 
 };
@@ -177,6 +146,70 @@ gameScene.update = function() {
     this.player.body.setVelocityY(this.jumpSpeed)
     this.player.setFrame(2)
   }
+}
+
+gameScene.setupLevel = function () {
+
+  this.levelData = this.cache.json.get('levelData')
+  
+  this.platforms = this.physics.add.staticGroup();
+
+  for (let i = 0; i < this.levelData.platforms.length; i++){
+    let curr = this.levelData.platforms[i]
+    let newObj;
+    if(curr.numTiles == 1){
+      newObj = this.add.sprite(curr.x,curr.y,curr.key).setOrigin(0)
+    }
+    else {
+      let width = this.textures.get('block').get(0).width;
+      let height = this.textures.get('block').get(0).height;
+      newObj = this.add.tileSprite(curr.x,curr.y,curr.numTiles*width,height ,curr.key).setOrigin(0)
+
+    }
+
+    this.physics.add.existing(newObj, true);
+    this.platforms.add(newObj)
+  }
+
+  this.fires = this.physics.add.group({
+    allowGravity: false,
+    immovable: true
+  });
+
+  for (let i = 0; i < this.levelData.fires.length; i++){
+    let curr = this.levelData.fires[i]
+    let newObj;
+      newObj = this.add.sprite(curr.x,curr.y, 'fire').setOrigin(0)
+
+      newObj.anims.play('burning')
+
+
+      // If the sprite is not considered a physics object, the below is useful.
+      // Since the entire group is a physics object, we get the properties from the group itself.
+
+      // this.physics.add.existing(newObj);
+      // this.fires.add(newObj)
+      // newObj.body.allowGravity = false
+      // newObj.body.immovable = true
+    
+    //this and the drag function below are to make the fires placeable when editing the level. 
+    // newObj.setInteractive()
+    // this.input.setDraggable(newObj)
+    // this.input.setDraggable(newObj);
+
+  }
+
+  // this.input.on('drag', function(pointer,gameObj,dragX,dragY){
+  //   gameObj.x = dragX;
+  //   gameObj.y = dragY;
+
+  //   console.log(dragX, dragY)
+  // })
+
+  // for level creation 
+  // this.input.on('drag', function(pointer){
+  //   console.log(pointer)
+  // })
 }
 
 // our game's configuration
