@@ -1,0 +1,14 @@
+# Wayosha Windheart
+
+**Ancestry** Arctic Elf
+**Class:** Barbarian
+
+**Background:** His father had been exiled from their enclave in the Tors of Levenies for his experimentations with white dragon magic. He believed he could make elves more suited to cold climes, which Wayosha only later learned was part of a plan to advance their enclave's trading interests at the Crown of the World. None of that mattered after the council discovered the origin of his fathers experiments. He was exiled quickly, but he left with a devoted following, co-conspirators motivated either by magical interest or greed. 
+
+His father knew about Skelexelas, but since she had not been seen in the region for years, he believed she had moved on, leaving her brood as a legacy. He would harvest their organs and skin and scales, and he would continue his research. But Skelexelas was far from gone, and she took the insult to her family personally. That was 92 years ago. 92 years since Wayosha became twice exiled and orphaned, an elf adrift in the world. He had been 19 years old, essentially a toddler by elf standards. 
+
+In the decades since, he saw much of Avistan. He slept close to the ceiling of Kaer Maga and in the shadow of the Pyramid of Kamaria the Brazen. He smuggled people out of Razmiran and smuggled them into Numeria under the watchful eyes of the Technic League. Some crusaders recruited him to fight in the Worldwound, said he'd make a fearsome threat to the demons, but Wayosha's quarry was not demonic. It was the dragons. 
+
+He's been safe on the roads, thank Desna, and when he wasn't safe, he could handle himself, thank Desna. He's never been short on work. People always seem to need someone strong around, and they pay more if you can hurt people. Wayosha has had to learn his morals the hard way. Sometimes he's had to look at butterflies with shame. There were years when he had to learn what he couldn't tolerate from himself, although he has naturally gravitated toward helping those who need him, not just those who can pay him. 
+
+Wayosha used to hate all dragons, but he had to learn the difference between metallic and chromatic. It was a hard won lesson, at the hands of a bronze dragon who nattered on while spanking Wayosha. He's not allowed back in Kintargo thanks to that incident, but it was really all a misunderstanding. Regardless, he doesn't need to understand what happened to him when Skelexelas attacked. He doesn't hunt for his father's research that she stole. No, it's enough for Wayosha to hate them. To hate all the white dragons. To hate their chromatic family. It's enough to have a fraction of their power inside him and a promise that if he ever has the power, he'll make her pay. Make them all pay. He doesn't have a home with his people. His home is vengeance and rage. And that's enough. 
