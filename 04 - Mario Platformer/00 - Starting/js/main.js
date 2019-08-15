@@ -39,22 +39,12 @@ gameScene.preload = function() {
     
   })
 
-
 };
 
 
 
-// executed once, after assets were loaded
+// executed once, after assets are loaded
 gameScene.create = function() {
-
-  this.physics.world.bounds.width=360
-  this.physics.world.bounds.height=700
-  
-  
-  //fire animation
-  // originally, in the tutorial,
-  // the animation didn't play because it's declared after 
-  // the object is placed on the Canvas element
   this.anims.create({
     key: 'burning',
     frames: this.anims.generateFrameNames('fire',{
@@ -64,16 +54,33 @@ gameScene.create = function() {
     repeat: -1
   })
 
+  // I tried placing the above in the preload function, but it breaks the game.
+  //  It turns out that once animations are declared, they are global, but they must be declared in the create function.
+  // compare this with the loading scene in the Pet Trainer game above. 
+  // placing the animtion here allows future scenes to access the global animation. 
+
   this.setupLevel();
+  
+  //fire animation
+  // originally, in the tutorial,
+  // the animation didn't play because it's declared after 
+  // the object is placed on the Canvas element
 
 
+ 
   
-  this.player = this.physics.add.existing(this.add.sprite(this.levelData.player.x, this.levelData.player.y,'player',3))
   
-  this.physics.add.collider([this.player, this.goal], this.platforms);
+  
+
+
+  // the first argument is one thing, and it checks to see if collision is possible for the second argument.
+  // note that the arguments can contain multiple items with an array.
+  
+  
+  // originally we had 
   // this.physics.add.collider(this.platforms,this.fires)
-
-  // later, this will change to physics groups and static groups for efficiency
+  // but it was changed because we only wanted overlap to show they are, indeed, things. For final product,
+  // switched to:
   
   //enable cursor keys
   this.cursors = this.input.keyboard.createCursorKeys();
@@ -100,8 +107,16 @@ gameScene.create = function() {
   // but we can create the sprite in the argument with this.add.sprite.
   // which has a normal declaration
   this.goal = this.physics.add.existing(this.add.sprite(this.levelData.goal.x,this.levelData.goal.y,'goal').setOrigin(0))
-  this.physics.add.collider(this.platforms,this.goal)
+  this.physics.add.collider([this.player, this.goal, this.barrels], this.platforms);
 
+  this.physics.add.overlap(this.player, [this.fires, this.goal, this.barrels], this.restartGame, null, this)
+  // the third argument, this.restartGame, is a callback function called when the overlap occurs.
+  // there is a fourth argument that checks to see if the callback should be called based on specifics of one of the
+  // first two arguments
+  // In docs: 
+  // https://photonstorm.github.io/phaser3-docs/Phaser.Physics.Arcade.ArcadePhysics.html
+  // Find: "overlap(object1 "
+  // note the array syntax doesn't work with normal groups as of Phaser 3.8. 
 
 };
 
@@ -149,8 +164,14 @@ gameScene.update = function() {
 }
 
 gameScene.setupLevel = function () {
-
+  // important command to acquire data from an accessible json file
   this.levelData = this.cache.json.get('levelData')
+  this.physics.world.bounds.width=this.levelData.world.width
+  this.physics.world.bounds.height=this.levelData.world.height
+  this.player = this.physics.add.existing(this.add.sprite(this.levelData.player.x, this.levelData.player.y,'player',3))
+  this.cameras.main.setBounds(0,0,this.levelData.world.width,this.levelData.world.height)
+  this.cameras.main.startFollow(this.player)
+  this.setupSpawnerTwo()
   
   this.platforms = this.physics.add.staticGroup();
 
@@ -179,16 +200,27 @@ gameScene.setupLevel = function () {
   for (let i = 0; i < this.levelData.fires.length; i++){
     let curr = this.levelData.fires[i]
     let newObj;
+
       newObj = this.add.sprite(curr.x,curr.y, 'fire').setOrigin(0)
+
+      // another option for the above is: 
+      // this.fires.create(curr.x,curr.y, 'fire')
+      // this changes the effects of the .setOrigin(0)
+      // if .setOrigin is weird, you can use .setOffset(x,y)
+      // this looks into the group and adds whatever we have added. 
+
 
       newObj.anims.play('burning')
 
 
+      this.fires.add(newObj)
       // If the sprite is not considered a physics object, the below is useful.
       // Since the entire group is a physics object, we get the properties from the group itself.
+      // as long as the sprite is in the group (per the line above these comments)
+      // it will inherit the physics properties of the physics group. 
 
-      // this.physics.add.existing(newObj);
-      // this.fires.add(newObj)
+        // this.physics.add.existing(newObj);
+      
       // newObj.body.allowGravity = false
       // newObj.body.immovable = true
     
@@ -211,6 +243,119 @@ gameScene.setupLevel = function () {
   //   console.log(pointer)
   // })
 }
+
+gameScene.restartGame = function(){
+  this.cameras.main.fade(500);
+  this.cameras.main.on('camerafadeoutcomplete', function(){
+    gameScene.scene.restart()
+  }, this)
+  console.log("Overlap detected!")
+}
+
+gameScene.setupSpawner = function() {
+this.barrels = this.physics.add.group({
+  bounceY: 0.1,
+  bounceX: 1,
+  collideWorldBounds: true
+})
+
+// documentation for Phaser Clock
+// https://photonstorm.github.io/phaser3-docs/Phaser.Time.Clock.html
+
+// documentation for time.addEvent: 
+// https://photonstorm.github.io/phaser3-docs/Phaser.Types.Time.html#.TimerEventConfig
+
+// Also: fuck Phaser documentation.
+// creates spawning event that uses information from levelData
+let spawningEvent = this.time.addEvent({
+  // how often the barrels spawn
+  delay: this.levelData.spawner.interval,
+  // keep spawning them
+  loop: true,
+  callbackScope: this,
+  callback: function(){
+    // add a new item, barrel, to the barrels group at the goal, with the sprite barrel
+    let barrel = this.barrels.create(this.goal.x,this.goal.y,'barrel')
+    // its speed on the X axis is
+    barrel.setVelocityX(this.levelData.spawner.speed)
+
+    // give the barrels a TTL
+    this.time.addEvent({
+      // set in levelData, determines how long they live
+      delay: this.levelData.spawner.duration,
+      // it's only applied to a single barrel
+      repeat: false,
+      callbackScope: this,
+      callback: function(){
+        // kill it
+        barrel.destroy()
+      }
+    })
+  }
+})
+// end setupSpawner function 
+}
+
+// The above works, but it continues to create and destroy objects, which is processor intensive over time.
+// JS has garbage collection that we as developers don't have access to. As a result, when JS decides to 
+// engage in garbage collection, the game might slow down (considerably). 
+
+// The method below is a more efficient implementation of the spawner that creates POOLS OF OBJECTS
+gameScene.setupSpawnerTwo = function() {
+  this.barrels = this.physics.add.group({
+    bounceY: 0.1,
+    bounceX: 1,
+    collideWorldBounds: true
+  })
+  
+  // documentation for Phaser Clock
+  // https://photonstorm.github.io/phaser3-docs/Phaser.Time.Clock.html
+  
+  // documentation for time.addEvent: 
+  // https://photonstorm.github.io/phaser3-docs/Phaser.Types.Time.html#.TimerEventConfig
+  
+  // Also: fuck Phaser documentation.
+  // creates spawning event that uses information from levelData
+  let spawningEvent = this.time.addEvent({
+    // how often the barrels spawn
+    delay: this.levelData.spawner.interval,
+    // keep spawning them
+    loop: true,
+    callbackScope: this,
+    callback: function(){
+      // add a new item, barrel, to the barrels group at the goal, with the sprite barrel
+      // in old version, we used
+      //let barrel = this.barrels.create(this.goal.x,this.goal.y,'barrel')
+      let barrel = this.barrels.get(this.goal.x,this.goal.y,'barrel')
+
+      // require these three flags in order to make this.barrels.killAndHide(barrel) not make the game stagnate
+      barrel.setActive(true)
+      barrel.setVisible(true)
+      barrel.body.enable = true
+      // its speed on the X axis is
+      barrel.setVelocityX(this.levelData.spawner.speed)
+  
+      // give the barrels a TTL
+      this.time.addEvent({
+        // set in levelData, determines how long they live
+        delay: this.levelData.spawner.duration,
+        // it's only applied to a single barrel
+        repeat: false,
+        callbackScope: this,
+        callback: function(){
+          // kill it
+          // initially we used: 
+          // barrel.destroy()
+          // With Object Pooling, we used:
+          this.barrels.killAndHide(barrel)
+          barrel.body.enable = false
+          // 
+        }
+      })
+    }
+  })
+  // end setupSpawner function 
+  }
 
 // our game's configuration
 let config = {

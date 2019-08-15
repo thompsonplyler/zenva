@@ -1,19 +1,27 @@
-{   "player": {
+{     "player":   {
     "x": 20,
     "y": 545
+},    "spawner":  {
+  "interval": 2000,
+  "speed": 150,
+  "duration": 9000 
 },
-    "goal": {
+      "world":    {
+   "width": 360,
+   "height": 700
+},
+      "goal":     {
         "x": 30,
         "y": 39
 },
-    "fires":[
+      "fires":    [
         {"x":230,"y":427},
         {"x":52,"y":309},
         {"x":230,"y":309},
         {"x":261,"y":188},
         {"x":194,"y":68}
     ],
-    "platforms": [
+      "platforms":[
     {
        "x": 72,
        "y": 450,

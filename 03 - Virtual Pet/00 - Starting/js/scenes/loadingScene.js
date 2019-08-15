@@ -40,7 +40,9 @@ loadingScene.preload = function() {
   };
 
   loadingScene.create = function(){
-
+    // once animations are declared, they are global, but they must be declared in the create function.
+    // placing the animtion here allows future scenes to access the global animation. 
+    
     this.anims.create({
         key: 'funnyfaces',
         yoyo: true,
