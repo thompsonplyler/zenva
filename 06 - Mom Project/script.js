@@ -1,19 +1,23 @@
 window.addEventListener('DOMContentLoaded', (event) => {
     let p = Array.from(document.getElementsByTagName("p"))
     let img = Array.from(document.getElementsByTagName("img"))
-    
+    let em = Array.from(document.getElementsByTagName("em"))
+    let h4 = Array.from(document.getElementsByTagName("h4"))
+    let h3 = Array.from(document.getElementsByTagName("h3"))
+    let i = Array.from(document.getElementsByTagName("i"))
+    let strong = Array.from(document.getElementsByTagName("strong"))
     // if a p tag contains no content besides an img tag, remove everything but the img tag.
     // if a p, h3, or h4 tag contains a bunch of styling, remove it. 
     // styling that follows an img tag can stay.
     // all span tags can go
-
-    examineParagraphContents(p)
+    pageContents = [p,h3,h4,em,img,strong]
+    pageContents.forEach(element => examineParagraphContents(element))
     cleanImages(img)
 });
 
 let cleanImages = (img) => {
-    img.forEach(img => img.classList.remove("img-responsive"))
     console.log(img)
+    img.forEach(img => img.removeAttribute("class"))
 }
 
 let examineParagraphContents = (p) => {
@@ -26,7 +30,15 @@ let examineParagraphContents = (p) => {
     examineWrongSpace(wrongSpace)
     examinePWithImages(haveImages)
     examinePWithSpans(haveSpans)
+    removeStylesFrom(p)
     // examinePWithSpans(haveSpans)
+}
+
+let removeStylesFrom = (p) => {
+    p.forEach(paragraph =>{
+        paragraph.removeAttribute('style')
+        paragraph.removeAttribute('class')
+    })
 }
 
 
@@ -53,9 +65,29 @@ let examineWrongQuot = (wrongQuot) => {
 }
 
 let examinePWithSpans = (haveSpans) => {
-    console.log("These have spans:", haveSpans)
-    console.log(haveSpans.length)
-    return haveSpans.forEach(p => console.log("P before work:",p.innerHTML.replace("<span ","").replace("</span>)","")) )
+    // console.log("These have spans:", haveSpans)
+    // console.log("This is how many paragraphs contain span elements:", haveSpans.length)
+    // return haveSpans.forEach(p => p.children.forEach(child=> {
+    //     console.log(child) 
+    // }))
+    haveSpans.forEach(p=> {
+        let spanArray = Array.from(p.children)
+        spanArray.forEach(child => {
+            if(child.tagName == "SPAN"){
+                let spanText = child.innerText
+                let pNode = child.parentNode
+                if (pNode){
+                    child.remove()
+                    pNode.innerText = spanText
+                }
+                // child.remove()
+                // pNode.innerText = spanText
+                
+            }
+           })
+    })
+
+    
 
 
       
