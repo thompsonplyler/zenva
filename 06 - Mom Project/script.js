@@ -8,7 +8,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // all span tags can go
 
     examineParagraphContents(p)
+    cleanImages(img)
 });
+
+let cleanImages = (img) => {
+    img.forEach(img => img.classList.remove("img-responsive"))
+    console.log(img)
+}
 
 let examineParagraphContents = (p) => {
     let haveImages = p.filter(paragraph => paragraph.getElementsByTagName('img').length > 0)
@@ -26,11 +32,14 @@ let examineParagraphContents = (p) => {
 
 let examinePWithImages = (haveImages) => {
 
+    // find instances where an image has font styles
+    // returns an array for all verified instances
     let boldStyleImages = haveImages.filter(paragraph => paragraph.innerHTML.includes("<strong><img"))
     let italicStyleImages = haveImages.filter(paragraph => paragraph.innerHTML.includes("<em><img"))
     let underLineStyleImages = haveImages.filter(paragraph => paragraph.innerHTML.includes("<u><img"))
 
-    boldStyleImages.forEach(p => p.innerHTML = p.innerHTML.replace("<strong>","").replace("</strong>",""))
+    //removes the 
+    boldStyleImages.forEach(p => p.innerHTML = p.innerHTML.replace("<strong><img","<img").replace("</strong>",""))
     italicStyleImages.forEach(p => {p.innerHTML = p.innerHTML.replace("<em>","").replace("</em>","")})    
     underLineStyleImages.forEach(p => p.innerHTML = p.innerHTML.replace("<u>","").replace("</u>",""))
 }
@@ -46,7 +55,7 @@ let examineWrongQuot = (wrongQuot) => {
 let examinePWithSpans = (haveSpans) => {
     console.log("These have spans:", haveSpans)
     console.log(haveSpans.length)
-    return haveSpans.forEach(p => console.log("P before work:",p.children) )
+    return haveSpans.forEach(p => console.log("P before work:",p.innerHTML.replace("<span ","").replace("</span>)","")) )
 
 
       
