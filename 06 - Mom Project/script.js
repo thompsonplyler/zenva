@@ -7,15 +7,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // styling that follows an img tag can stay.
     // all span tags can go
 
-    compareParagraphContents(p)
+    examineParagraphContents(p)
 });
 
-let compareParagraphContents = (p) => {
-    console.log(p)
+let examineParagraphContents = (p) => {
     let haveImages = p.filter(paragraph => paragraph.getElementsByTagName('img').length > 0)
+    let haveSpans = p.filter(paragraph => paragraph.getElementsByTagName('span').length > 0)
     let wrongSpace = p.filter(paragraph => paragraph.innerHTML.includes("&nbsp;"))
-    examinePWithImages(haveImages)
+    let wrongQuot = p.filter(paragraph => paragraph.innerHTML.includes("&quot;"))
+
+    examineWrongQuot(wrongQuot)
     examineWrongSpace(wrongSpace)
+    examinePWithImages(haveImages)
+    examinePWithSpans(haveSpans)
+    // examinePWithSpans(haveSpans)
 }
 
 
@@ -25,20 +30,29 @@ let examinePWithImages = (haveImages) => {
     let italicStyleImages = haveImages.filter(paragraph => paragraph.innerHTML.includes("<em><img"))
     let underLineStyleImages = haveImages.filter(paragraph => paragraph.innerHTML.includes("<u><img"))
 
-    console.log("Image with Bold Around It:", boldStyleImages)
-    console.log("Image with Italic Around It:", italicStyleImages)
-    console.log("Image with Italic Around It:", underLineStyleImages)
-
     boldStyleImages.forEach(p => p.innerHTML = p.innerHTML.replace("<strong>","").replace("</strong>",""))
-    italicStyleImages.forEach(p => p.innerHTML = p.innerHTML.replace("<em>","").replace("</em>",""))    
+    italicStyleImages.forEach(p => {p.innerHTML = p.innerHTML.replace("<em>","").replace("</em>","")})    
     underLineStyleImages.forEach(p => p.innerHTML = p.innerHTML.replace("<u>","").replace("</u>",""))
-    // console.log(emptyStyle.forEach(p={})
-        // {return console.log("Paragraph from Empty Style Array:", p)}))
-    // console.log(emptyStyle.forEach(p=>console.log(p))))
 }
 
 let examineWrongSpace = (wrongSpace) => {
-    wrongSpace.forEach(p => p.innerHTML = p.innerHTML.replace("&nbsp;"," "))
+    return wrongSpace.forEach(p => p.innerHTML = p.innerHTML.replace("&nbsp;"," "))
+}
+
+let examineWrongQuot = (wrongQuot) => {
+    wrongQuot.forEach(p => p.innerHTML = p.innerHTML.replace("&quot;","\""))
+}
+
+let examinePWithSpans = (haveSpans) => {
+    console.log("These have spans:", haveSpans)
+    console.log(haveSpans.length)
+    return haveSpans.forEach(p => console.log("P before work:",p.children) )
+
+
+      
+
+
+
 }
 
 
