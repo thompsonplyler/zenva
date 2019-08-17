@@ -6,18 +6,87 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let h3 = Array.from(document.getElementsByTagName("h3"))
     let i = Array.from(document.getElementsByTagName("i"))
     let strong = Array.from(document.getElementsByTagName("strong"))
+    let span = Array.from(document.getElementsByTagName("span"))
+    let font = Array.from(document.getElementsByTagName("font"))
+
     // if a p tag contains no content besides an img tag, remove everything but the img tag.
     // if a p, h3, or h4 tag contains a bunch of styling, remove it. 
     // styling that follows an img tag can stay.
     // all span tags can go
-    pageContents = [p,h3,h4,em,img,strong]
-    pageContents.forEach(element => examineParagraphContents(element))
-    cleanImages(img)
+
+    let pageContents = [p,h3,h4,em,i,img,strong,span]
+    removeStyles(pageContents)
+    fixCodeSwitch(pageContents)
+    fontKiller(font)
+    // dumbTagKiller(font)
+    // dumbTagKiller(span)
 });
 
-let cleanImages = (img) => {
-    console.log(img)
-    img.forEach(img => img.removeAttribute("class"))
+let fontKiller = (data) =>{
+    data.forEach(font => {
+        console.log(font)
+    })
+
+
+}
+
+let removeStyles = (data) => {
+    if (data.length>0) {data.forEach(element => {
+        element.forEach(e=> {
+            if (e.tagName!=="IMG"){
+                e.removeAttribute('class')
+                e.removeAttribute('style')
+            }
+            else{
+                e.removeAttribute('class')
+            }
+            })
+    })}
+}
+
+let dumbTagKiller=(data) =>{
+    data.forEach(datum=>{
+        if (datum.tagName=="SPAN"){
+            console.log(datum.innerHTML.length)
+        }})
+
+    data.forEach(datum=>{
+        let text = datum.innerHTML
+        let pNode = datum.parentNode
+        datum.remove()
+        pNode.append(text)
+        if (pNode.tagName == "SPAN"){
+            let theRealpNode  = pNode.parentNode
+            pNode.remove()
+            theRealpNode.append(text)
+
+        }
+    })
+    // span.forEach(span=> {
+    //     let text = span.innerHTML
+    //     let pNode = span.parentNode
+    //     pNode.removeAttribute("style")
+    //     if (span.innerText.length > 2) {
+    //         span.remove();
+    //         pNode.append(text)
+    //     }
+    //     else {
+    //         span.remove()
+    //     }
+        
+    // })
+    // span.forEach(span=>console.log(span.parentNode))
+}
+
+let fixCodeSwitch = (data) => {
+    data.forEach(datum=> {
+        let wrongSpace = datum.filter(paragraph => paragraph.innerHTML.includes("&nbsp;"))
+        let wrongQuot = datum.filter(paragraph => paragraph.innerHTML.includes("&quot;"))
+
+        examineWrongQuot(wrongQuot)
+        examineWrongSpace(wrongSpace)
+    })
+
 }
 
 let examineParagraphContents = (p) => {
@@ -27,7 +96,7 @@ let examineParagraphContents = (p) => {
     let wrongQuot = p.filter(paragraph => paragraph.innerHTML.includes("&quot;"))
 
     examineWrongQuot(wrongQuot)
-    examineWrongSpace(wrongSpace)
+    
     examinePWithImages(haveImages)
     examinePWithSpans(haveSpans)
     removeStylesFrom(p)
