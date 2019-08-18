@@ -155,3 +155,4 @@ gameScene.gameOver = function () {
 
 
 let game = new Phaser.Game(config);
+

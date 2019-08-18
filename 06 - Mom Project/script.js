@@ -9,25 +9,72 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let span = Array.from(document.getElementsByTagName("span"))
     let font = Array.from(document.getElementsByTagName("font"))
 
-    // if a p tag contains no content besides an img tag, remove everything but the img tag.
-    // if a p, h3, or h4 tag contains a bunch of styling, remove it. 
-    // styling that follows an img tag can stay.
-    // all span tags can go
-
     let pageContents = [p,h3,h4,em,i,img,strong,span]
+    let pageContentsNoSpan = [p,h3,h4,em,i, img, strong]
     removeStyles(pageContents)
     fixCodeSwitch(pageContents)
     fontKiller(font)
-    // dumbTagKiller(font)
-    // dumbTagKiller(span)
+    imageFormatRemover(img)
+    pageContentsNoSpan.forEach(array=> pExaminer(array)) 
 });
+
+let imageFormatRemover = (data) => {
+    
+    data.forEach(img=> {
+        //looking at each image in the page
+        if (img.parentNode) {
+            // want to see the entire HTML and break it into parts, so
+            // see what the useful node is that carries formatting with it,
+            // such as <h3> or <p>. 
+            // we will remove all instances of <span> and </span> from this array.  
+
+            if (img.parentNode.parentNode) {
+                let usefulNodeHTML = img.parentNode.parentNode.innerHTML
+                console.log(usefulNodeHTML.split(" "))
+                usefulNodeHTML.forEach((el,i) => {
+                    let item
+                    if el
+                })
+            }
+        }
+
+    })
+}
+
+        
+//     {if (img.parentNode){
+//         if (img.parentNode.tagName == "STRONG" ||img.parentNode.tagName == "EM"){
+//             if (img.parentNode.parentNode){
+//                 let actualImage = img
+//                 let dumbNode = img.parentNode
+//                 let rightNode = img.parentNode.parentNode
+
+//                 rightNode.innerHTML.split(" ").forEach((value,i) =>{
+//                     if (value.indexOf('<strong>') > -1) {
+//                         console.log(i)
+//                 }
+//                     else if (value.indexOf('</strong>')>-1){
+//                 console.log(value)
+//                 }   
+//             })
+//                         }
+//                     }
+
+//                 }
+//         }
+//     )
+// }
 
 let fontKiller = (data) =>{
     data.forEach(font => {
-        console.log(font)
+        let text = font.innerHTML
+        let pNode 
+        if (font.parentNode){
+            pNode = font.parentNode
+            pNode.innerHTML = text
+        }
+        font.remove()    
     })
-
-
 }
 
 let removeStyles = (data) => {
@@ -44,40 +91,6 @@ let removeStyles = (data) => {
     })}
 }
 
-let dumbTagKiller=(data) =>{
-    data.forEach(datum=>{
-        if (datum.tagName=="SPAN"){
-            console.log(datum.innerHTML.length)
-        }})
-
-    data.forEach(datum=>{
-        let text = datum.innerHTML
-        let pNode = datum.parentNode
-        datum.remove()
-        pNode.append(text)
-        if (pNode.tagName == "SPAN"){
-            let theRealpNode  = pNode.parentNode
-            pNode.remove()
-            theRealpNode.append(text)
-
-        }
-    })
-    // span.forEach(span=> {
-    //     let text = span.innerHTML
-    //     let pNode = span.parentNode
-    //     pNode.removeAttribute("style")
-    //     if (span.innerText.length > 2) {
-    //         span.remove();
-    //         pNode.append(text)
-    //     }
-    //     else {
-    //         span.remove()
-    //     }
-        
-    // })
-    // span.forEach(span=>console.log(span.parentNode))
-}
-
 let fixCodeSwitch = (data) => {
     data.forEach(datum=> {
         let wrongSpace = datum.filter(paragraph => paragraph.innerHTML.includes("&nbsp;"))
@@ -85,6 +98,45 @@ let fixCodeSwitch = (data) => {
 
         examineWrongQuot(wrongQuot)
         examineWrongSpace(wrongSpace)
+    })
+
+}
+
+let examineWrongSpace = (wrongSpace) => {
+    return wrongSpace.forEach(p => p.innerHTML = p.innerHTML.replace("&nbsp;"," "))
+}
+
+let examineWrongQuot = (wrongQuot) => {
+    wrongQuot.forEach(p => p.innerHTML = p.innerHTML.replace("&quot;","\""))
+}
+
+let pExaminer = (data) => {
+    // this receives an array containing every paragraph element found on the page. 
+    // data = big array
+
+    // 
+    data.forEach(p=> {
+        // console.log(p.innerText)
+        // p.innerHTML = p.innerText
+        // console.log(p.innerHTML)
+        pArray = []
+        if (p.childNodes){
+            pArray = Array.from(p.childNodes)
+        }
+        // console.log(pArray)
+        
+        // let pArray = Array.from(p.childNodes)
+        // console.log(pArray)
+        // pArray.forEach((child,index)=> {
+        //     console.log("Child for index "+index+":"+ child.textContent)
+        // })
+        
+        // .forEach(node=>{
+        //     if (node.tagName == "SPAN"){
+        //         console.log(node.textContent)
+        //     }
+        // })
+
     })
 
 }
@@ -103,14 +155,6 @@ let examineParagraphContents = (p) => {
     // examinePWithSpans(haveSpans)
 }
 
-let removeStylesFrom = (p) => {
-    p.forEach(paragraph =>{
-        paragraph.removeAttribute('style')
-        paragraph.removeAttribute('class')
-    })
-}
-
-
 let examinePWithImages = (haveImages) => {
 
     // find instances where an image has font styles
@@ -125,13 +169,6 @@ let examinePWithImages = (haveImages) => {
     underLineStyleImages.forEach(p => p.innerHTML = p.innerHTML.replace("<u>","").replace("</u>",""))
 }
 
-let examineWrongSpace = (wrongSpace) => {
-    return wrongSpace.forEach(p => p.innerHTML = p.innerHTML.replace("&nbsp;"," "))
-}
-
-let examineWrongQuot = (wrongQuot) => {
-    wrongQuot.forEach(p => p.innerHTML = p.innerHTML.replace("&quot;","\""))
-}
 
 let examinePWithSpans = (haveSpans) => {
     // console.log("These have spans:", haveSpans)
@@ -155,13 +192,6 @@ let examinePWithSpans = (haveSpans) => {
             }
            })
     })
-
-    
-
-
-      
-
-
 
 }
 
