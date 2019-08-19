@@ -8,61 +8,60 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let strong = Array.from(document.getElementsByTagName("strong"))
     let span = Array.from(document.getElementsByTagName("span"))
     let font = Array.from(document.getElementsByTagName("font"))
+    let a = Array.from(document.getElementsByTagName("a"))
+    let body = document.getElementsByTagName("body")
 
-    let pageContents = [p,h3,h4,em,i,img,strong,span]
+    let pageContents = [p,h3,h4,em,i,a,img,strong,span]
     let pageContentsNoSpan = [p,h3,h4,em,i, img, strong]
+
     removeStyles(pageContents)
-    fixCodeSwitch(pageContents)
     fontKiller(font)
-    imageFormatRemover(img)
-    pageContentsNoSpan.forEach(array=> pExaminer(array)) 
+    spanKiller(body)
+    fontReKiller(body)
+    console.log(document.getElementsByTagName("body")[0].innerHTML)
 });
 
-let imageFormatRemover = (data) => {
-    
-    data.forEach(img=> {
-        //looking at each image in the page
-        if (img.parentNode) {
-            // want to see the entire HTML and break it into parts, so
-            // see what the useful node is that carries formatting with it,
-            // such as <h3> or <p>. 
-            // we will remove all instances of <span> and </span> from this array.  
-
-            if (img.parentNode.parentNode) {
-                let usefulNodeHTML = img.parentNode.parentNode.innerHTML
-                console.log(usefulNodeHTML.split(" "))
-                usefulNodeHTML.forEach((el,i) => {
-                    let item
-                    if el
-                })
-            }
-        }
-
-    })
+spanKiller = function(data){
+    // console.log(data[0])
+    let bodyContents = data[0]
+    let cleanedBody = bodyContents.innerHTML.replace(/<span>/g,"").replace(/<\/span>/g,"").replace(/&nbsp;/g," ").replace(/&quot;/g,"'").replace(/<strong><img/g,"<img").replace(/><\/strong>/g,">").replace(/<em><img/g,"<img").replace(/><\/em>/g,">")
+    data[0].innerHTML = cleanedBody
 }
 
+fontReKiller = function(data){
+    let bodyContents = data[0]
+    let cleanedBody = bodyContents.innerHTML.replace(/<font color="#000000">/,"").replace(/<\/font>"/,"")
+    data[0].innerHTML = cleanedBody
+
+}
+
+// let imageFormatRemover = (data) => {
+    
+//     data.forEach(img=> {
+//         //looking at each image in the page
+//         if (img.parentNode) {
+//             // want to see the entire HTML and break it into parts, so
+//             // see what the useful node is that carries formatting with it,
+//             // such as <h3> or <p>. 
+//             // we will remove all instances of <span> and </span> from this array.  
         
-//     {if (img.parentNode){
-//         if (img.parentNode.tagName == "STRONG" ||img.parentNode.tagName == "EM"){
-//             if (img.parentNode.parentNode){
-//                 let actualImage = img
-//                 let dumbNode = img.parentNode
-//                 let rightNode = img.parentNode.parentNode
 
-//                 rightNode.innerHTML.split(" ").forEach((value,i) =>{
-//                     if (value.indexOf('<strong>') > -1) {
-//                         console.log(i)
-//                 }
-//                     else if (value.indexOf('</strong>')>-1){
-//                 console.log(value)
-//                 }   
-//             })
-//                         }
-//                     }
+//             if (img.parentNode.parentNode) {
+//                 let usefulNodeHTML = img.parentNode.parentNode.innerHTML
+//                 let usefulNode = img.parentNode.parentNode
+//                 let formattedText = usefulNode.innerHTML.replace(/<strong><img /g, "<img ").replace(/><\/strong>/g,"/>").replace(/<em><img /g, "<img ").replace(/><\/em>/g,"/>")
+//                 usefulNode.innerHTML = formattedText
 
-//                 }
+
+                
+//                 // console.log(usefulNodeHTML.split(" "))
+//                 // usefulNodeHTML.forEach((el,i) => {
+//                 //     let item
+//                 // })
+//             }
 //         }
-//     )
+
+//     })
 // }
 
 let fontKiller = (data) =>{
@@ -109,94 +108,3 @@ let examineWrongSpace = (wrongSpace) => {
 let examineWrongQuot = (wrongQuot) => {
     wrongQuot.forEach(p => p.innerHTML = p.innerHTML.replace("&quot;","\""))
 }
-
-let pExaminer = (data) => {
-    // this receives an array containing every paragraph element found on the page. 
-    // data = big array
-
-    // 
-    data.forEach(p=> {
-        // console.log(p.innerText)
-        // p.innerHTML = p.innerText
-        // console.log(p.innerHTML)
-        pArray = []
-        if (p.childNodes){
-            pArray = Array.from(p.childNodes)
-        }
-        // console.log(pArray)
-        
-        // let pArray = Array.from(p.childNodes)
-        // console.log(pArray)
-        // pArray.forEach((child,index)=> {
-        //     console.log("Child for index "+index+":"+ child.textContent)
-        // })
-        
-        // .forEach(node=>{
-        //     if (node.tagName == "SPAN"){
-        //         console.log(node.textContent)
-        //     }
-        // })
-
-    })
-
-}
-
-let examineParagraphContents = (p) => {
-    let haveImages = p.filter(paragraph => paragraph.getElementsByTagName('img').length > 0)
-    let haveSpans = p.filter(paragraph => paragraph.getElementsByTagName('span').length > 0)
-    let wrongSpace = p.filter(paragraph => paragraph.innerHTML.includes("&nbsp;"))
-    let wrongQuot = p.filter(paragraph => paragraph.innerHTML.includes("&quot;"))
-
-    examineWrongQuot(wrongQuot)
-    
-    examinePWithImages(haveImages)
-    examinePWithSpans(haveSpans)
-    removeStylesFrom(p)
-    // examinePWithSpans(haveSpans)
-}
-
-let examinePWithImages = (haveImages) => {
-
-    // find instances where an image has font styles
-    // returns an array for all verified instances
-    let boldStyleImages = haveImages.filter(paragraph => paragraph.innerHTML.includes("<strong><img"))
-    let italicStyleImages = haveImages.filter(paragraph => paragraph.innerHTML.includes("<em><img"))
-    let underLineStyleImages = haveImages.filter(paragraph => paragraph.innerHTML.includes("<u><img"))
-
-    //removes the 
-    boldStyleImages.forEach(p => p.innerHTML = p.innerHTML.replace("<strong><img","<img").replace("</strong>",""))
-    italicStyleImages.forEach(p => {p.innerHTML = p.innerHTML.replace("<em>","").replace("</em>","")})    
-    underLineStyleImages.forEach(p => p.innerHTML = p.innerHTML.replace("<u>","").replace("</u>",""))
-}
-
-
-let examinePWithSpans = (haveSpans) => {
-    // console.log("These have spans:", haveSpans)
-    // console.log("This is how many paragraphs contain span elements:", haveSpans.length)
-    // return haveSpans.forEach(p => p.children.forEach(child=> {
-    //     console.log(child) 
-    // }))
-    haveSpans.forEach(p=> {
-        let spanArray = Array.from(p.children)
-        spanArray.forEach(child => {
-            if(child.tagName == "SPAN"){
-                let spanText = child.innerText
-                let pNode = child.parentNode
-                if (pNode){
-                    child.remove()
-                    pNode.innerText = spanText
-                }
-                // child.remove()
-                // pNode.innerText = spanText
-                
-            }
-           })
-    })
-
-}
-
-
-// does a paragraph have an image? 
-
-
-// 
