@@ -1,4 +1,11 @@
 window.addEventListener('DOMContentLoaded', (event) => {
+    let cleanerBody = document.getElementById("cleaner")
+    let processBtn = document.getElementById("process-btn")
+    let textArea = document.getElementById("textarea")
+    let newHtml = document.createElement('div')
+    let form = document.getElementById("form")
+
+
     let p = Array.from(document.getElementsByTagName("p"))
     let img = Array.from(document.getElementsByTagName("img"))
     let em = Array.from(document.getElementsByTagName("em"))
@@ -14,12 +21,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let pageContents = [p,h3,h4,em,i,a,img,strong,span]
     let pageContentsNoSpan = [p,h3,h4,em,i, img, strong]
 
-    removeStyles(pageContents)
-    fontKiller(font)
-    spanKiller(body)
-    fontReKiller(body)
-    console.log(document.getElementsByTagName("body")[0].innerHTML)
+    form.addEventListener('submit', e=>submitHandler(e))
+
+    // removeStyles(pageContents)
+    // fontKiller(font)
+    // spanKiller(body)
+    // fontReKiller(body)
+
+    
+    // console.log(document.getElementsByTagName("body")[0].innerHTML)
 });
+
+let submitHandler= (e) => {
+    e.preventDefault()
+    let div = document.createElement("div")
+    let articleBody = e.target.elements[0].value
+    div.innerHTML = articleBody
+    console.log(div)
+}
+
 
 spanKiller = function(data){
     // console.log(data[0])
