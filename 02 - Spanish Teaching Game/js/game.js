@@ -116,6 +116,8 @@ gameScene.create = function () {
     // this is how to add a group of sprites with different keys.
     // each item in the group can be acted on with Phaser.Actions.Call, or acted on with conditional statements looking for the key.
 
+    
+
     this.items = this.add.group([{
             key: 'building',
             setXY: {
